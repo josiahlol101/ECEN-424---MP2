@@ -15,7 +15,7 @@ public class MatrixMultiplication {
         private final int startRow; //the first row thread will calculate
         private final int endRow; //where thread stops (not included)
 
-        //give each worker the matrices and the rows it's responsible for
+        //Define constructor function that gives each thread access to matrices and its corresponding rows
         MatrixWorker(int[][] matrixA, int[][] matrixB, int[][] result,
                      int startRow, int endRow) {
             this.matrixA = matrixA;
@@ -25,7 +25,7 @@ public class MatrixMultiplication {
             this.endRow = endRow;
         }
 
-        //this runs when the thread starts, calculating its assigned rows
+        //this function runs the multiplication for each thread
         @Override
         public void run() {
             for (int i = startRow; i < endRow; i++) {
@@ -56,21 +56,21 @@ public class MatrixMultiplication {
     //we'll use this later to check if our multithreaded result is correct
     private static int[][] multiplyNormally(int[][] matrixA,
                                              int[][] matrixB) {
-        int[][] result = new int[SIZE][SIZE];
+        int[][] result = new int[SIZE][SIZE];//create array to store matrix
 
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i < SIZE; i++) {//iterate through matrix
             for (int j = 0; j < SIZE; j++) {
                 int sum = 0;
 
                 for (int k = 0; k < SIZE; k++) {
-                    sum += matrixA[i][k] * matrixB[k][j];
+                    sum += matrixA[i][k] * matrixB[k][j];//add multiplied values in variable sum
                 }
 
-                result[i][j] = sum;
+                result[i][j] = sum;//store sum in result matrix once multiplication of row/column is complete
             }
         }
 
-        return result;
+        return result;//return resulting matrix
     }
 
     //prints each row of the matrix, with spacing to make it readable
@@ -90,9 +90,10 @@ public class MatrixMultiplication {
         int[][] matrixB = new int[SIZE][SIZE];
         int[][] threadedResult = new int[SIZE][SIZE];
 
-        //using 42 as a seed so we get the same random values each time
+        //using 42 as a seed so we get the same random values each time. helps for debugging
         Random random = new Random(42);
 
+        //fill matrices w random numbers
         fillRandom(matrixA, random);
         fillRandom(matrixB, random);
 
@@ -102,20 +103,21 @@ public class MatrixMultiplication {
         System.out.println("\nMatrix B:");
         printMatrix(matrixB);
 
-        //create an array to hold our 5 worker threads
+        //create an array to hold the 5 worker threads
         MatrixWorker[] workers = new MatrixWorker[THREAD_COUNT];
 
         for (int t = 0; t < THREAD_COUNT; t++) {
-            //figure out which 4 rows each thread will work on
+            //define which 4 rows each thread will work on
             int startRow = t * ROWS_PER_THREAD;
             int endRow = startRow + ROWS_PER_THREAD;
 
-            workers[t] = new MatrixWorker(
+            workers[t] = new MatrixWorker( //creates a new MatrixWorker object and stores it in workers array.
                     matrixA, matrixB, threadedResult, startRow, endRow);
 
-            workers[t].setName("Thread " + (t + 1));
+            workers[t].setName("Thread " + (t + 1));//Name threads
             workers[t].start(); //start the thread so it can begin its calculations
 
+            //displays which rows each frame was assigned
             System.out.println(workers[t].getName()
                     + " assigned rows " + (startRow + 1)
                     + " through " + endRow);
@@ -133,10 +135,10 @@ public class MatrixMultiplication {
         int[][] normalResult = multiplyNormally(matrixA, matrixB);
 
         //check if every element matches between the two matrices
-        if (Arrays.deepEquals(threadedResult, normalResult)) {
+        if (Arrays.deepEquals(threadedResult, normalResult)) {//Pass case
             System.out.println(
                 "\nVerification PASSED: Multithreaded and normal results match.");
-        } else {
+        } else {//fail case
             System.out.println(
                 "\nVerification FAILED: Results do not match.");
         }
